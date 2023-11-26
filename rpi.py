@@ -16,17 +16,14 @@ while True:
     humidity, temperature = Adafruit_DHT.read_retry(sensor, 22)
 
     # Read the analog moisture sensor value
-    moisture_value = GPIO.input(18)  # Read analog value from moisture sensor
-
-    # Convert analog moisture sensor value to a percentage
-    moisture_percentage = (moisture_value / 1023) * 100  # Normalize analog value to 0-100% range
+    moisture_value = GPIO.input(18)  # Read digital value from moisture sensor
 
     # Check if the soil moisture is below the threshold (50%)
-    if moisture_percentage < 50:
+    if moisture_value == 0:
         # Turn on the water pump
         GPIO.output(4, GPIO.HIGH)
         time.sleep(3)
-
+    else:
         # Turn off the water pump
         GPIO.output(4, GPIO.LOW)
 
