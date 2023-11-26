@@ -14,13 +14,15 @@ sensor = Adafruit_DHT.DHT11
 
 while True:
     humidity, temperature = Adafruit_DHT.read_retry(sensor, 22)
-    moisture = GPIO.input(18)
-    if moisture == 0:
+    moisture_value = GPIO.input(18)
+    moisture_percentage = (moisture_value / 1023) * 100
+    if moisture_percentage < 50:
         GPIO.output(4, GPIO.HIGH)
         time.sleep(3)
         GPIO.output(4, GPIO.LOW)
         # Print the temperature and humidity values
         print("Temperature: " + str(temperature) + "C")
         print("Humidity: " + str(humidity) + "%")
+        print("Moisture: " + str(moisture_percentage) + "%")
     else:
         time.sleep(1)
