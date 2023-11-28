@@ -18,7 +18,7 @@ while True:
     # Read the analog moisture sensor value
     moisture_value = GPIO.input(18)  # Read digital value from moisture sensor
 
-    # Check if the soil moisture is below the threshold (50%)
+    # Check if the soil moisture has water content
     if moisture_value == 0:
         # Turn on the water pump
         GPIO.output(4, GPIO.HIGH)
@@ -30,7 +30,6 @@ while True:
     # Print the temperature, humidity, and moisture percentage values
     print("Temperature: " + str(temperature) + "C")
     print("Humidity: " + str(humidity) + "%")
-    print("Moisture: " + str(moisture_percentage) + "%")
 
     # Wait for 1 second before checking again
     time.sleep(1)
