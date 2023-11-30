@@ -1,7 +1,13 @@
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 import RPi.GPIO as GPIO
 import time
 import Adafruit_DHT
 import serial
+from threading import Thread
+
+app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Open serial communication with the Arduino to receive moisture value
 ser = serial.Serial('/dev/ttyUSB0', 9600)  # Open serial communication with the Arduino
@@ -15,7 +21,10 @@ GPIO.setup(22, GPIO.IN)  # Temperature/humidity sensor
 # Define the sensor type as DHT11
 sensor = Adafruit_DHT.DHT11
 moisture_percentage = 0
-while True:
+pump_status = False  # Initialize pump status
+
+def read_sensor_data():
+    global moisture_percentage
     # Read the moisture value from the serial communication with the Arduino
     if ser.inWaiting():
         data = ser.readline().decode('utf-8')  # Read the data from the Arduino and convert it to an integer
@@ -25,21 +34,35 @@ while True:
     # Read the temperature and humidity from the DHT11 sensor
     humidity, temperature = Adafruit_DHT.read_retry(sensor, 22)
 
-    # Check if the soil moisture is below the threshold (50%)
+    return temperature, humidity, moisture_percentage
+
+def control_water_pump():
+    global pump_status
     if moisture_percentage < 50:
         # Turn on the water pump
         GPIO.output(4, GPIO.HIGH)
-        time.sleep(2)
+        pump_status = True
     else:
         # Turn off the water pump
         GPIO.output(4, GPIO.LOW)
+        pump_status = False
 
-    # Print the temperature, humidity, and moisture percentage values
-    print("Temperature: " + str(temperature) + "C")
-    print("Humidity: " + str(humidity) + "%")
-    print("Moisture: " + str(moisture_percentage) + "%")
+def background_thread():
+    while True:
+        temperature, humidity, moisture = read_sensor_data()
+        control_water_pump()
+        socketio.emit('sensor_update', {'temperature': temperature, 'humidity': humidity, 'moisture': moisture})
+        socketio.emit('pump_status', {'pump_status': pump_status})
+        time.sleep(5)  # Update every 5 seconds
 
-    # Wait for 5 second before checking again
-    time.sleep(5)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-ser.close()  # Close the serial communication with the Arduino
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+    Thread(target=background_thread).start()
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True, host='0.0.0.0')
