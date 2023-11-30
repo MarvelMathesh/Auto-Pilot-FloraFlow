@@ -67,6 +67,16 @@ def background_thread():
 def index():
     return render_template('index.html')
 
+@app.route('/values')
+def values():
+    temperature, humidity, moisture = read_sensor_data()
+    inner_dict = {
+        'temperature': temperature,
+        'humidity': humidity,
+        'moisture': moisture,
+    }
+    return jsonify(data = inner_dict)
+
 @socketio.on('connect')
 def handle_connect():
     print('Client connected')
