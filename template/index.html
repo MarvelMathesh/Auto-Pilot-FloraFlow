@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Garden System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function setPumpTrigger() {
+            var pumpTriggerValue = document.getElementById('pump_trigger').value;
+            socket.emit('set_pump_trigger', { 'pump_trigger': pumpTriggerValue });
+        }
+
+        socket.on('sensor_update', function(data) {
+            document.getElementById('temperature').innerHTML = 'Temperature: ' + data.temperature + '°C';
+            document.getElementById('humidity').innerHTML = 'Humidity: ' + data.humidity + '%';
+            document.getElementById('moisture').innerHTML = 'Moisture: ' + data.moisture + '%';
+        });
+
+        socket.on('pump_status', function(data) {
+            var pumpStatusElement = document.getElementById('pump_status');
+            pumpStatusElement.innerHTML = 'Pump Status: ' + (data.pump_status ? 'ON' : 'OFF');
+            pumpStatusElement.style.color = data.pump_status ? 'green' : 'red';
+        });
+
+        socket.on('moisture_history', function(data) {
+            var moistureHistory = data.moisture_history;
+            // Handle the moisture history data and update the graph (you can use a library like Chart.js)
+            // Example: Assume you have a div with id 'moisture_chart' for the chart
+            var ctx = document.getElementById('moisture_chart').getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: moistureHistory.length }, (_, i) => i + 1),
+                    datasets: [{
+                        label: 'Moisture Level',
+                        data: moistureHistory,
+                        borderColor: 'blue',
+                        borderWidth: 1,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+
+        // ... (remaining code)
+    </script>
+</head>
+<body>
+    <h1>Smart Irrigation System</h1>
+    <p id="temperature">Temperature: </p>
+    <p id="humidity">Humidity: </p>
+    <p id="moisture">Moisture: </p>
+    <p id="pump_status">Pump Status: </p>
+
+    <input type="number" id="pump_trigger" placeholder="Enter Pump Trigger Level">
+    <button onclick="setPumpTrigger()">Set Pump Trigger</button>
+
+    <canvas id="moisture_chart" width="400" height="200"></canvas>
+</body>
+</html>
