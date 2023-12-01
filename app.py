@@ -63,9 +63,19 @@ def background_thread():
         socketio.emit('moisture_history', {'moisture_history': moisture_history})
         time.sleep(5)  # Update every 5 seconds
 
+def turn_on_manual():
+    GPIO.output(4, GPIO.HIGH)
+    time.sleep(2)
+    GPIO.output(4, GPIO.LOW)
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route("/turn_on")
+def turn_on_cmd():
+    turn_on_manual()
 
 @app.route('/values')
 def values():
