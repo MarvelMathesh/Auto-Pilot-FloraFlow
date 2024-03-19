@@ -14,7 +14,6 @@ ser = serial.Serial('/dev/ttyUSB0', 9600)  # Open serial communication with the 
 
 # Set GPIO pin numbering mode and set GPIO pins for moisture sensor, relay, and temperature/humidity sensor
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.IN)  # Moisture sensor
 GPIO.setup(4, GPIO.OUT)  # Relay
 GPIO.setup(22, GPIO.IN)  # Temperature/humidity sensor
 
@@ -66,16 +65,6 @@ def background_thread():
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/values')
-def values():
-    temperature, humidity, moisture = read_sensor_data()
-    inner_dict = {
-        'temperature': temperature,
-        'humidity': humidity,
-        'moisture': moisture,
-    }
-    return jsonify(data = inner_dict)
 
 @socketio.on('connect')
 def handle_connect():
