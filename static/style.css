@@ -1,0 +1,43 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: linear-gradient(to right, #8a2387,#e94057,#f27121);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 900px; /* Adjust width as needed */
+  height: 500px;
+  margin: 0 auto; /* Center the container horizontally */
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9); /* White with slight transparency */
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sensor-readings,
+.pump-control,
+.moisture-chart {
+  margin-bottom: 20px;
+}
+
+.sensor-readings p,
+.pump-control input,
+.pump-control button {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+#moisture_chart {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
