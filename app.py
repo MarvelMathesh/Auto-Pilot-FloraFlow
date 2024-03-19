@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import time
 import Adafruit_DHT
 import serial
+import re
 from threading import Thread
 
 app = Flask(__name__)
@@ -26,11 +27,13 @@ moisture_history = []
 
 def read_sensor_data():
     global moisture_percentage
+
     # Read the moisture value from the serial communication with the Arduino
     if ser.inWaiting():
-        data = ser.readline().decode('utf-8')  # Read the data from the Arduino and convert it to an integer
-        if data.startswith('Soil Val: '):
-            moisture_percentage = int(data.split('Soil Val: ')[1])
+        data = ser.readline().decode('utf-8')
+        match = re.search(r"Soil Val: (\d+)", data)
+        if match:
+            moisture_percentage = int(match.group(1))
 
     # Read the temperature and humidity from the DHT11 sensor
     humidity, temperature = Adafruit_DHT.read_retry(sensor, 22)
